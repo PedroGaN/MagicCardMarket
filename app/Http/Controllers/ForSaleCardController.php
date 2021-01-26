@@ -76,7 +76,7 @@ class ForSaleCardController extends Controller
                     }
                 }
             }
-            if($result[0] != ""){
+            if(!empty($result)){
                 $response = $result;
             }else{
                 $response = "Cards Not Found";

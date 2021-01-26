@@ -29,16 +29,18 @@ class CollectionController extends Controller
                 $base64 = base64_encode($symbol);
                 $collection->symbol = $base64;
             }
-
-            if($data->edition_date){
+            
+            if($data->edition_date && strtotime($data->edition_date) != NULL){
                 $collection->edition_date = $data->edition_date;
+            }else{
+                $response .= " Incorrect Date Format | ";
             }
 
             try{
 
                 $collection->save();
 
-                $response = "New Collection: ".$collection->name." saved succesfully";
+                $response .= "New Collection: ".$collection->name." saved succesfully";
 
                 if(Str::contains($request->symbol, 'png')){
                     $response .= "<img src='data:image/png;base64,".$base64."'>";
@@ -107,15 +109,17 @@ class CollectionController extends Controller
                     $collection->symbol = $base64;
                 }
     
-                if($data->edition_date){
+                if($data->edition_date && strtotime($data->edition_date) != NULL){
                     $collection->edition_date = $data->edition_date;
+                }else{
+                    $response .= " Incorrect Date Format | ";
                 }
     
                 try{
     
                     $collection->save();
     
-                    $response = "Collection: ".$collection->name." edited succesfully";
+                    $response .= "Collection: ".$collection->name." edited succesfully";
     
                     if(Str::contains($request->symbol, 'png')){
                         $response .= "<img src='data:image/png;base64,".$collection->symbol."'>";
