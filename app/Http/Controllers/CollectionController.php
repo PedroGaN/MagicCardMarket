@@ -47,7 +47,6 @@ class CollectionController extends Controller
                 }
                 $card = Card::where('id',1)->first();
                 if($card){
-                    print("entro");
                     $tempCollectionID = [];
                     $tempCollectionID = $card->collection_id;
                     $tempCollectionID[] = Collection::where('name',$collection->name)->first()->id;
