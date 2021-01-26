@@ -23,18 +23,23 @@ class UserController extends Controller
             $user->name = $data->name;
             $user->email = $data->email;
             $user->password = Hash::make($data->password);
-            $user->status = $data->status;
+            $checkStatus = $data->status;
+            if($checkStatus != "Casual" && $checkStatus != "Professional" && $checkStatus != "Admin" ){
+                $response = "Invalid Status Info";
+            }else{
+                $user->status = $data->status;
+                
+                try{
 
-            try{
+                    $user->save();
 
-                $user->save();
+                    $response = "New User: ".$user->name." saved succesfully";
 
-                $response = "New User: ".$user->name." saved succesfully";
-
-            }catch(\Exception $e){
-                $response = $e->getMessage();
+                }catch(\Exception $e){
+                    $response = $e->getMessage();
+                }
             }
-
+            
         }else{
             $response = "Incorrect Data";
         }
