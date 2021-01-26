@@ -53,7 +53,7 @@ class ForSaleCardController extends Controller
     public function searchForSaleCard($name){
 
         $cards = Card::where('name',$name)->get()->toArray();
-        $cardsForSale = ForSaleCard::all();
+        $cardsForSale = ForSaleCard::orderBy('prize','ASC')->get();
         $users = User::all();
 
         $result = [];
