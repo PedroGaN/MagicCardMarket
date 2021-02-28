@@ -23,10 +23,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/cards/searchCard/{name}',[CardController::class,"searchCard"]);
+
 Route::group(['middleware' => 'auth:api'], function(){
     Route::post('/users/logout',[UserController::class,"logoutUser"]);
     Route::post('/cards/newCard',[CardController::class,"newCard"]);
-    Route::get('/cards/searchCard/{name}',[CardController::class,"searchCard"]);
+   // Route::get('/cards/searchCard/{name}',[CardController::class,"searchCard"]);
     Route::post('/collections/newCollection',[CollectionController::class,"newCollection"]);
     Route::post('/collections/editCollection',[CollectionController::class,"editCollection"]);
     Route::post('/forSaleCards/newForSaleCard',[ForSaleCardController::class,"newForSaleCard"]);

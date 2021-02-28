@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Card;
 use App\Models\User;
 use App\Models\Collection;
+use Illuminate\Support\Facades\Log;
 
 class CardController extends Controller
 {
@@ -73,12 +74,20 @@ class CardController extends Controller
 
     public function searchCard($name){
 
-        $cards = Card::where('name',$name)->get()->toArray();
+        Log::info("Búsqueda de cartas por nombre");
 
+        if($name){
+            Log::debug("Nombre buscado: ".$name);
+            $trimmedName = trim($name);
+            $cards = Card::where('name',$trimmedName)->get()->toArray();
+            $encodedCards = json_encode($cards);
+        }else{
+            Log::debug("Nombre no introducido");
+        }
         $result = [];
 
         if($cards){
-
+            Log::debug("Cantidad de cartas devueltas: ".count($cards));
             foreach($cards as $card){
                 $result[] = [
                     "id" => $card['id'],
@@ -86,11 +95,19 @@ class CardController extends Controller
                 ];
             }
 
+            $encodedResult = json_encode($result);
+
+            Log::debug("Resultado de búsqueda: ".$encodedResult);
+
             $response = $result;
 
         }else{
+            Log::debug("No se han encontrado resultados");
             $response = "Cards Not Found";
         }
+
+        $encodedresponse = json_encode($result);
+        Log::info("Información final de búsqueda: ".$encodedresponse);
 
         return response($response);
     }

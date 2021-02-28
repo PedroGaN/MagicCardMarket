@@ -42,11 +42,18 @@ class CollectionController extends Controller
 
                 $response .= "New Collection: ".$collection->name." saved succesfully";
 
+
+                
+
                 if(Str::contains($request->symbol, 'png')){
                     $response .= "<img src='data:image/png;base64,".$base64."'>";
                 }else{
                     $response .= "<img src='data:image/jpeg;base64,".$base64."'>";
                 }
+
+
+
+
                 $card = Card::where('id',1)->first();
                 if($card){
                     $tempCollectionID = [];
