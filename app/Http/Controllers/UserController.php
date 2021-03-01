@@ -12,28 +12,29 @@ class UserController extends Controller
 
         $response = "";
 
-        $data = $request->getContent();
+        $data = $request->only('name','password','email','status');
 
-        $data = json_decode($data);
+        //$data = json_decode($data);
 
         if($data){
 
             $user = new User();
 
-            $user->name = $data->name;
-            $user->email = $data->email;
-            $user->password = Hash::make($data->password);
-            $checkStatus = $data->status;
+            $user->name = $data["name"];
+            $user->email = $data["email"];
+            $user->password = Hash::make($data["password"]);
+            $checkStatus = $data["status"];
             if($checkStatus != "Casual" && $checkStatus != "Professional" && $checkStatus != "Admin" ){
                 $response = "Invalid Status Info";
             }else{
-                $user->status = $data->status;
+                $user->status = $data["status"];
                 
                 try{
 
+                    $user->api_token = self::randomToken(8,"auth");
                     $user->save();
 
-                    $response = "New User: ".$user->name." saved succesfully";
+                    return view('index')->with('user', $user);
 
                 }catch(\Exception $e){
                     $response = $e->getMessage();
@@ -51,15 +52,15 @@ class UserController extends Controller
     public function loginUser(Request $request) {
         $response = "";
 
-        $data = $request->getContent();
+        $data = $request->only('name','password');
 
-        $data = json_decode($data);
+        //$data = json_decode($data);
 
         if($data){
 
-            $user = User::where('name', $data->name)->first();
+            $user = User::where('name', $data["name"])->first();
             if($user){
-                if(Hash::check($data->password,$user->password)){
+                if(Hash::check($data["password"],$user->password)){
                     
                     $user->api_token = self::randomToken(8,"auth");
 
@@ -67,7 +68,8 @@ class UserController extends Controller
 
                         $user->save();
     
-                        $response = "Welcome ".$user->name."Login Token: ".$user->api_token;
+                        //$response = "Welcome ".$user->name."Login Token: ".$user->api_token;
+                        return view('index')->with('user', $user);
                     }catch(\Exception $e){
                         $response = $e->getMessage();
                     }
@@ -81,7 +83,7 @@ class UserController extends Controller
             }
 
         }else{
-            $response = "Incorrect Data";
+            $response = "Incorrect Data".$data;
         }
 
         return response($response);

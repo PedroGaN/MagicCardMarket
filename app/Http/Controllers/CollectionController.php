@@ -13,78 +13,77 @@ class CollectionController extends Controller
     public function newCollection(Request $request) {
         $response = "";
 
-        $data = $request->data;
+        $data = $request->only('symbol','collection_name','edition_date','user');
 
-        $data = json_decode($data);
+        //$data = json_decode($data);
 
         if($data){
 
             $collection = new Collection();
+            $user = User::where('name', $data["user"])->first();
 
-            $collection->name = $data->name;
-            
-            if($request->hasFile('symbol')){
-                $path = $request->file('symbol')->getRealPath();
-                $symbol = file_get_contents($path);
-                $base64 = base64_encode($symbol);
-                $collection->symbol = $base64;
-            }
-            
-            if($data->edition_date && strtotime($data->edition_date) != NULL){
-                $collection->edition_date = $data->edition_date;
+            if($user->status != "Admin"){
+                $response = "Access Denied";
             }else{
-                $response .= " Incorrect Date Format | ";
-            }
 
-            try{
-
-                $collection->save();
-
-                $response .= "New Collection: ".$collection->name." saved succesfully";
-
-
+                $collection->name = $data["collection_name"];
+            
+                if($request->hasFile('symbol')){
+                    $path = $request->file('symbol')->getRealPath();
+                    $symbol = file_get_contents($path);
+                    $base64 = base64_encode($symbol);
+                    $collection->symbol = $base64;
+                }
                 
-
-                if(Str::contains($request->symbol, 'png')){
-                    $response .= "<img src='data:image/png;base64,".$base64."'>";
+                if($data["edition_date"] && strtotime($data["edition_date"]) != NULL){
+                    $collection->edition_date = $data["edition_date"];
                 }else{
-                    $response .= "<img src='data:image/jpeg;base64,".$base64."'>";
+                    $response .= " Incorrect Date Format | ";
                 }
-
-
-
-
-                $card = Card::where('id',1)->first();
-                if($card){
-                    $tempCollectionID = [];
-                    $tempCollectionID = $card->collection_id;
-                    $tempCollectionID[] = Collection::where('name',$collection->name)->first()->id;
-                    $card->collection_id = $tempCollectionID;
-                    
-                }else{
-
-                    $card = new Card();
-                    $card->name = "Placeholder";
-                    $card->description = "Placeholder";
-
-                    $tempCollectionID = [];
-                    $tempCollectionID[] = Collection::where('name',$collection->name)->first()->id;
-                    $card->collection_id = $tempCollectionID;
-
-                }
-
+    
                 try{
-
-                    $card->save();
-
-                    $response .= " Created Placeholder Card";
-
+    
+                    $collection->save();
+    
+                    /*if(Str::contains($request->symbol, 'png')){
+                        $response .= "<img src='data:image/png;base64,".$base64."'>";
+                    }else{
+                        $response .= "<img src='data:image/jpeg;base64,".$base64."'>";
+                    }*/
+    
+                    $card = Card::where('id',1)->first();
+                    if($card){
+                        $tempCollectionID = [];
+                        $tempCollectionID = $card->collection_id;
+                        $tempCollectionID[] = Collection::where('name',$collection->name)->first()->id;
+                        $card->collection_id = $tempCollectionID;
+                        
+                    }else{
+    
+                        $card = new Card();
+                        $card->name = "Placeholder";
+                        $card->description = "Placeholder";
+    
+                        $tempCollectionID = [];
+                        $tempCollectionID[] = Collection::where('name',$collection->name)->first()->id;
+                        $card->collection_id = $tempCollectionID;
+    
+                    }
+    
+                    try{
+    
+                        $card->save();
+    
+                        $response .= " Created Placeholder Card";
+                        return view('index')->with('user',$user);
+    
+                    }catch(\Exception $e){
+                        $response .= $response = $e->getMessage();
+                    }
+    
                 }catch(\Exception $e){
-                    $response .= $response = $e->getMessage();
+                    $response = $e->getMessage();
                 }
-
-            }catch(\Exception $e){
-                $response = $e->getMessage();
             }
 
         }else{

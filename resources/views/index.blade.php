@@ -220,28 +220,42 @@
                 </button>
                 <!-- Collection of nav links, forms, and other content for toggling -->
                 <div id="navbarCollapse" class="collapse navbar-collapse justify-content-start">
-                    <form class="navbar-form form-inline">
+                    <form class="navbar-form form-inline" id="searchForm" action="http://localhost/laravel/MagicCardMarket/public/api/cards/searchCard" method="post">
                         <div class="input-group search-box">								
-                            <input type="text" id="search" class="form-control" placeholder="Search cards here...">
+                            <input type="text" id="search" class="form-control" placeholder="All Cards" name="name">
+                            @if(!empty($user))
+                            <input type="hidden" name="user" value="{!! $user->name !!}">
+                            @endif
                             <div class="input-group-append">
-                                <span class="input-group-text">
-                                    <a type="search-button" class="material-icons">&#xE8B6;</a>
-                                </span>
+                                    <input type="submit" class="btn btn-primary btn-block" value="Search">
+                            </div>
+                        </div>
+                    </form>
+                    <form class="navbar-form form-inline" action="http://localhost/laravel/MagicCardMarket/public/api/forSaleCards/searchForSaleCard" method="post">
+                        <div class="input-group search-box">								
+                            <input type="text" id="search" class="form-control" placeholder="Cards for Sale" name="name">
+                            @if(!empty($user))
+                            <input type="hidden" name="user" value="{!! $user->name !!}">
+                            @endif
+                            <div class="input-group-append">
+                                    <input type="submit" class="btn btn-primary btn-block" value="Search">
                             </div>
                         </div>
                     </form>
                     <div class="navbar-nav ml-auto action-buttons">
+                        @if(empty($user))
                         <div class="nav-item dropdown">
                             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle mr-4">Login</a>
                             <div class="dropdown-menu action-form">
-                                <form action="/examples/actions/confirmation.php" method="post">
+                                <form action="http://localhost/laravel/MagicCardMarket/public/api/users/login" method="post">
+                                    @CSRF
                                     <p class="hint-text">Sign in with your account</p>
                                     <div class="form-group">
-                                        <input type="text" class="form-control" placeholder="Username" required="required">
+                                        <input type="text" class="form-control" placeholder="Username" name="name" id="name" required="required">
                                     </div>
                                     <div class="form-group">
-                                        <input type="password" class="form-control" placeholder="Password" required="required">
-                                    </div>
+                                        <input type="password" class="form-control" placeholder="Password" name="password" id="password" required="required">
+                                    </div>                                   
                                     <input type="submit" class="btn btn-primary btn-block" value="Login">
                                     <div class="text-center mt-2">
                                         <a href="#">Forgot Your password?</a>
@@ -252,25 +266,151 @@
                         <div class="nav-item dropdown">
                             <a href="#" data-toggle="dropdown" class="btn btn-primary dropdown-toggle sign-up-btn">Sign up</a>
                             <div class="dropdown-menu action-form">
-                                <form action="/examples/actions/confirmation.php" method="post">
+                                <form action="http://localhost/laravel/MagicCardMarket/public/api/users/new" method="post">
                                     <p class="hint-text">Fill in this form to create your account!</p>
                                     <div class="form-group">
-                                        <input type="text" class="form-control" placeholder="Username" required="required">
+                                        <input type="text" class="form-control" placeholder="Username" name="name" required="required">
                                     </div>
                                     <div class="form-group">
-                                        <input type="password" class="form-control" placeholder="Password" required="required">
+                                        <input type="text" class="form-control" placeholder="Email" name="email" required="required">
                                     </div>
                                     <div class="form-group">
-                                        <input type="password" class="form-control" placeholder="Confirm Password" required="required">
+                                        <input type="password" class="form-control" placeholder="Password" name="password" required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" class="form-control" placeholder="Confirm Password" name="check_password" required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <select class="form-control form-control-lg" aria-label=".form-select-lg example" name="status" id="status">
+                                            <option selected>Type of User</option>
+                                            <option value="Admin">Admin</option>
+                                            <option value="Casual">Casual</option>
+                                            <option value="Professional">Professional</option>
+                                        </select>
                                     </div>
                                     <input type="submit" class="btn btn-primary btn-block" value="Sign up">
                                 </form>
                             </div>
                         </div>
+                        @elseif ($user->status == "Admin")
+                        <div class="nav-item dropdown">
+                            <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle mr-4">Create Card</a>
+                            <div class="dropdown-menu action-form">
+                                <form action="http://localhost/laravel/MagicCardMarket/public/api/cards/newCard" method="post">
+                                    @CSRF
+                                    <p class="hint-text">Create Card</p>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="Username" name="username" id="username" required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="Card Name" name="cardname" id="cardname" required="required">
+                                    </div>   
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="Description" name="description" id="description" required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="Collection_ID Ej: '[2,3,4]'" name="collection_id" id="collection_id" required="required">
+                                    </div>                                 
+                                    <input type="submit" class="btn btn-primary btn-block" value="Create Card">
+                                </form>
+                            </div>
+                        </div>
+                        <div class="nav-item dropdown">
+                            <a href="#" data-toggle="dropdown" class="btn btn-primary dropdown-toggle sign-up-btn">Create Collection</a>
+                            <div class="dropdown-menu action-form">
+                                <form action="http://localhost/laravel/MagicCardMarket/public/api/collections/newCollection" method="post">
+                                    <p class="hint-text">Create Collection</p>
+                                    <div class="form-group">
+                                        <input type="file" class="form-control" placeholder="Symbol" name="symbol" id="symbol"  required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="Collection Name" name="collection_name" id="collection_name" required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="date" class="form-control" placeholder="Edition Date" name="edition_date" id="edition_date" required="required">
+                                    </div>
+                                    @if(!empty($user))
+                                    <input type="hidden" name="user" value="{!! $user->name !!}">
+                                    @endif
+                                    <input type="submit" class="btn btn-primary btn-block" value="Create Collection">
+                                </form>
+                            </div>
+                        </div>
+                        @else
+                        <div class="nav-item dropdown">
+                            <a href="#" data-toggle="dropdown" class="btn btn-primary dropdown-toggle sign-up-btn">Put Card For Sale</a>
+                            <div class="dropdown-menu action-form">
+                                <form action="http://localhost/laravel/MagicCardMarket/public/api/forSaleCards/newForSaleCard" method="post">
+                                    @CSRF
+                                    <p class="hint-text">Fill in this form to put cards for sale!</p>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="Username" name="username" id="username" required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="Card ID" name="card_id" id="card_id" required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="number" class="form-control" placeholder="Prize" name="prize" required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="number" class="form-control" placeholder="Stock" name="stock" required="required">
+                                    </div>
+                                    <input type="submit" class="btn btn-primary btn-block" value="Put for Sale">
+                                </form>
+                            </div>
+                        </div>
+                        <!--<a>{!! var_dump($user->api_token) !!}</a>-->
+
+                        @endif
                     </div>
                 </div>
             </nav>
         </header>
-
+        <div>
+                <table class="table table-success table-striped">
+                    <thead>
+                    @if(empty($results))
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Collection</th>
+                        </tr>
+                    @else
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Seller_Name</th>
+                            <th>Seller_Type</th>
+                        </tr>
+                    @endif
+                    </thead>
+                    <tbody>
+                    @if(!empty($results))
+                        @foreach($results as $result)
+                            <tr>
+                                <td>{!! $result["card_id"] !!}</td>
+                                <td>{!! $result["card_name"] !!}</td>
+                                <td>{!! $result["price"] !!}</td>
+                                <td>{!! $result["stock"] !!}</td>
+                                <td>{!! $result["user_name"] !!}</td>
+                                <td>{!! $result["user_type"] !!}</td>
+                            </tr>
+                        @endforeach
+                    @elseif(!empty($cards))
+                        @foreach($cards as $card)
+                            <tr>
+                                <td>{!! $card->id !!}</td>
+                                <td>{!! $card->name !!}</td>
+                                <td>{!! $card->description !!}</td>
+                                <td>{!! @var_export(implode(",",$card->collection_id)) !!}</td>
+                            </tr>
+                        @endforeach
+                    @endif
+                    </tbody>
+                </table>
+        </div>
     </body>
 </html>
